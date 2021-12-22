@@ -5,6 +5,7 @@ from time import sleep
 import math
 import network
 from esp import espnow
+from struct import pack
 
 ON = 0
 OFF = 1
@@ -20,11 +21,13 @@ def make_switch(pin):
     return switch
 switches = list(map(make_switch, switch_pins))
 
-def animate(leds):
+def animate(leds):    
+    for led in leds:
+        led.value(1)
+        sleep(.05)
     for led in leds:
         led.value(0)
         sleep(.05)
-        
     for led in leds:
         led.value(1)
         sleep(.05)
@@ -55,7 +58,7 @@ while True:
             current_value = current_value + int(math.pow(2, index))
     
     if current_value != last_value:
-        now.send(peer, str(current_value), True)
+        now.send(peer, pack('h', current_value), True)
         print(f"Sending {current_value}")
     last_value = current_value
     sleep(0.25)

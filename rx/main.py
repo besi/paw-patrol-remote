@@ -3,6 +3,7 @@
 import network
 from esp import espnow
 import time
+import math
 import machine
 import neopixel
 
@@ -26,12 +27,12 @@ def clear():
 
 def pretty():
     global np
-    np[0] = (1 * 36, 2 * 36, 7 * 36)
-    np[1] = (2 * 36, 7 * 36, 7 * 36)
+    np[0] = (6 * 36, 7 * 36, 4 * 36)
+    np[1] = (2 * 36, 7 * 36, 5 * 36)
     np[2] = (3 * 36, 1 * 36, 4 * 36)
-    np[3] = (4 * 36, 2 * 36, 5 * 36)
-    np[4] = (1 * 36, 3 * 36, 6 * 36)
-    np[5] = (6 * 36, 4 * 36, 2 * 36)
+    np[3] = (1 * 36, 2 * 36, 7 * 36)
+    np[4] = (4 * 36, 2 * 36, 5 * 36)
+    np[5] = (1 * 36, 3 * 36, 6 * 36)
     np[6] = (7 * 36, 3 * 36, 1 * 36)
 
     np.write()
@@ -67,27 +68,16 @@ def mode_changed(event):
 
 mode_button.irq(trigger=machine.Pin.IRQ_RISING, handler=mode_changed)
 
+colors = [
+    (0,0,255),(0,255,0),(128,128,0),(255,20,147),(255,69,0),(0,206,209),(255,0, 0)]
+
 while True:
     host, msg = e.irecv()
     if msg:
-        # msg == None if timeout in irecv()
-        print(host, msg)
-        if msg == b"green":
-            np.fill((0, 255, 0))
-        if msg == b"red":
-            np.fill((255, 0, 0))
-        if msg == b"blue":
-            np.fill((0, 0, 255))
-        if msg == b"white":
-            np.fill((255, 255, 255))
-        if msg == b"orange":
-            np.fill((128, 128, 0))
-        if msg == b"purple":
-            np.fill((128, 0, 128))
-        if msg == b"off":
-            np.fill((0, 0, 0))
-        if msg == b"reset":
-            pretty()
-        if msg == b"end":
-            break
-        np.write()
+        value = int(msg[0])
+        for x in range(0,7):
+            print(str(int(math.pow(2,x)))+ ' & ' + str(value) + ' = ' + str(value & int(math.pow(2,x))))
+            np[x] = (0,0,0)
+            if value & int(math.pow(2,x)):
+                np[x] = colors[x]
+            np.write()
